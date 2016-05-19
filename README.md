@@ -3,61 +3,37 @@ sift - Text modelling framework
 
 __sift__ is a toolkit for extracting models of entities and text from a corpus of linked documents.
 
+
+## What can it do?
+
+__sift__ is written in python, runs on Spark and is completely modular.
+
+Out of the box, you can:
+
+- Convert wikipedia articles into json objects without all the mediawiki cruft
+- Model entity popularity, alternative names and relatedness
+- Preprocess text documents for machine learning pipelines
+- Push output into datastores like MongoDB and Redis
+
 ## Quick Start
 
 ### Install
 ```bash
-virtualenv ve
-. ve/bin/activate
 pip install git+http://git@github.com/wikilinks/sift.git
 ```
 
-## Example
+## Getting Started
 
-### Entity Prominence in Wikipedia
+To use sift, you'll need some data.
+
+If you'd like to use Wikipedia data, sift includes a helper script for downloading the latest dumps.
 
 Download the latest paritioned Wikipedia dump into the 'latest' directory.
 ```bash
 download-wikipedia latest
 ```
 
-Extract a clean, json formatted corpus of documents from the raw Mediawiki dump.
-```bash
-sift build-corpus --save wikidocs WikipediaArticles latest json
-```
-
-Extract link counts over this corpus, saving records under the 'counts' directory as compressed json.
-```bash
-sift build-model wikidocs --save counts EntityCounts json
-```
-
-### Inspecting Output
-
-The json record format allows for easy inspection of model output:
-```bash
-zcat -r counts/*.gz | grep -E '/Apple_Inc."' | python -m json.tool
-```
-
-Result:
-```javascript
-{
-    "_id": "en.wikipedia.org/wiki/Apple_Inc.",
-    "count": 6379
-}
-```
-
-### Bulk Import
-This format also allows for easy bulk import of results into mongo:
-```
-zcat -r counts/*.gz | mongoimport --db models --collection counts
-```
-
-__sift__ also supports the generation of redis protcol via the `redis` format flag.
-
-This allows for very fast bulk inserts via redis-cli:
-```bash
-zcat -r counts/*.gz | redis-cli --pipe
-```
+Once you've got some data, take a look at the sample notebook: [sift.ipynb](sift.ipynb).
 
 ## Spark
 
@@ -65,4 +41,4 @@ __sift__ uses Spark to process corpora in parallel.
 
 If you'd like to make use of an existing Spark cluster, ensure the `SPARK_HOME` environment variable is set.
 
-If not, `sift` will prompt you to download and run Spark locally in standalone mode.
+If not, that's fine. `sift` will prompt you to download and run Spark locally, utilising multiple cores on your system.
